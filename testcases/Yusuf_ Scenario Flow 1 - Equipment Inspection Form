@@ -1,0 +1,426 @@
+# WeMine Test Cases by Muhammad Yusuf
+Test case including functional and API Test with test method manual/automation explanation
+
+## Flow 1 - Equipment Inspection Form
+### Functional Test Cases
+#### TC-INSPECT-F001: View Inspection List - Mobile Precondition: User logged in, master data synchronized Test Steps:
+1. Navigate to "Equipment Inspection" menu
+2. Verify list of previous submissions appears
+3. Verify each submission displays: Form Code, Date, Status
+4. Tap on a submission
+5. Verify submission detail can be opened
+Expected Result:
+* List displays correctly
+* Data sorted by date (newest first)
+* Detail submission accessible
+* Loading state displayed if data still loading
+Test Method: Manual Testing Reason: UI/UX validation requires human judgment
+
+#### TC-INSPECT-F002: Create New Inspection - All Field Types Precondition: User logged in, form with all field types available Test Steps:
+1. Tap "New Inspection" button
+2. Select Form Code that has all field types:
+    * Input Text
+    * Input Date Picker
+    * Input Select
+    * Input Radio (4 options)
+    * Image Picker
+3. Fill all mandatory fields with valid data
+4. Upload image for Image Picker field
+5. Submit form
+Expected Result:
+* All field types render correctly
+* Validation works for mandatory fields
+* Image upload successful
+* Submission saved successfully
+* Success message displayed
+Test Method: Manual + Automated (Appium for mobile) Reason: Initial validation manual, then can be automated for regression
+
+#### TC-INSPECT-F003: Form Validation - Empty Mandatory Fields Precondition: User on create inspection page Test Steps:
+1. Select Form Code
+2. Leave mandatory fields empty
+3. Attempt to submit form
+Expected Result:
+* Validation error appears
+* Error message shows which fields are empty
+* Form not submitted
+* User stays on form page
+Test Method: Automated Testing Reason: Validation logic can be tested consistently
+
+#### TC-INSPECT-F004: Dynamic Form Rendering - Maximum Fields Precondition: Form with 50 fields available Test Steps:
+1. Select Form Code with 50 fields
+2. Verify all fields rendered
+3. Scroll through entire form
+4. Fill random fields
+5. Verify form responsiveness
+Expected Result:
+* All 50 fields rendered correctly
+* No performance issues (lag/freeze)
+* Scrolling is smooth
+* Input interactions responsive
+Test Method: Manual Testing with performance monitoring Reason: Performance critical for user experience
+
+#### TC-INSPECT-F005: Offline Form Submission Precondition: User logged in, form available Test Steps:
+1. Disable network connection
+2. Create new inspection
+3. Fill all required fields
+4. Submit form
+5. Verify form saved locally
+6. Enable network connection
+7. Verify form auto-syncs to server
+Expected Result:
+* Form can be submitted offline
+* Data stored in local storage
+* Indicator shows "Pending Sync"
+* Auto-sync when online
+* Status changes to "Synced"
+Test Method: Manual Testing Reason: Offline functionality requires specific network condition testing
+
+#### TC-INSPECT-F006: Image Upload - Multiple Formats Precondition: User on form page with Image Picker Test Steps:
+1. Test upload with formats: JPG, PNG, HEIC
+2. Test upload with various sizes: 1MB, 5MB, 10MB
+3. Test upload multiple images if allowed
+4. Verify image preview
+Expected Result:
+* All common formats supported
+* Images compressed appropriately
+* Upload progress indicator shown
+* Preview displayed correctly
+Test Method: Manual Testing Reason: Different devices handle images differently
+
+#### TC-INSPECT-F007: Form Code Selection - Web Precondition: User logged in to WeMineOffice Test Steps:
+1. Navigate to Equipment Inspection module
+2. Click "New Inspection"
+3. Open Form Code dropdown
+4. Verify list of available forms
+5. Select a form
+6. Verify dynamic fields loaded
+Expected Result:
+* Form list loaded correctly
+* Selection triggers field generation
+* Fields match form definition
+* No duplicate fields
+Test Method: Automated Testing (Selenium/Playwright) Reason: Can be scripted for consistent validation
+
+#### TC-INSPECT-F008: Cross-Platform Form Submission Visibility Precondition: User has access to both platforms Test Steps:
+1. Submit inspection form via Mobile
+2. Wait for sync completion
+3. Login to WeMineOffice Web
+4. Navigate to inspection list
+5. Verify submission visible
+6. Open submission detail
+7. Verify all data matches
+Expected Result:
+* Submission visible on Web
+* All fields displayed correctly
+* Images visible
+* Timestamps accurate
+* Status consistent
+Test Method: Manual Testing Reason: Cross-platform data consistency validation
+
+#### TC-INSPECT-F009: Form Builder - Web to Mobile Rendering Precondition: None Test Steps:
+1. Create new form via Web form builder with all field types
+2. Save and activate form
+3. Sync master data on Mobile
+4. Open form on Mobile
+5. Verify all fields render correctly
+6. Test all field interactions
+Expected Result:
+* All field types render on Mobile
+* Layout appropriate for mobile screen
+* Field validations work
+* Form is submittable
+* No rendering errors
+Test Method: Manual Testing Reason: Dynamic form rendering validation across platforms
+
+#### TC-INSPECT-F010: Data Persistence - App Restart Precondition: User has created data offline Test Steps:
+1. Disable network connection
+2. Create 3 inspection reports
+3. Close application completely
+4. Reopen application (still offline)
+5. Verify all data still exists
+Expected Result:
+* All offline data persisted
+* Data displayed correctly
+* Status indicators show "Pending Sync"
+* No data loss
+Test Method: Manual Testing Reason: App lifecycle testing
+
+#### TC-INSPECT-F011: Auto-Sync on Connection Restore Precondition: Multiple pending offline submissions exist Test Steps:
+1. Verify 5 pending submissions exist
+2. Enable network connection
+3. Monitor sync process
+4. Verify sync progress indicator
+5. Verify all submissions synced
+6. Verify status updated to "Synced"
+Expected Result:
+* Auto-sync triggers automatically
+* Progress shown to user
+* All data successfully synced
+* No duplicates created
+* Local data marked as synced
+Test Method: Manual Testing Reason: Network state change detection
+
+#### TC-INSPECT-F012: Partial Sync - Network Interruption Precondition: 10 pending submissions exist Test Steps:
+1. Enable network to start sync
+2. Wait for 5 submissions to sync
+3. Disable network during sync
+4. Verify partial sync state
+5. Re-enable network
+6. Verify remaining 5 submissions sync
+Expected Result:
+* Synced items remain synced
+* Unsynced items queued for retry
+* No data corruption
+* Status accurately reflects sync state
+* Resume sync from where it stopped
+Test Method: Manual Testing Reason: Network interruption simulation
+
+#### TC-INSPECT-F013: Offline Master Data Access Precondition: Master data previously synced Test Steps:
+1. Disable network connection
+2. Open form that requires master data (locations, employees, etc.)
+3. Verify dropdowns populated
+4. Create submission using cached data
+5. Verify submission successful
+Expected Result:
+* Master data accessible offline
+* Dropdowns work correctly
+* No API call attempts
+* Submission uses cached data
+* Proper offline indicators shown
+Test Method: Manual Testing Reason: Cached data validation
+
+#### TC-INSPECT-F014: Offline Image Optimization Precondition: Offline mode active Test Steps:
+1. Capture/select high resolution image
+2. Verify image compression occurs
+3. Check compressed image size
+4. Verify image quality acceptable
+5. Submit with compressed image
+Expected Result:
+* Images compressed automatically
+* Size reduced by ~70% minimum
+* Quality remains acceptable
+* Storage optimized
+* Upload faster when syncing
+Test Method: Manual Testing Reason: Performance optimization validation
+
+### API Test Cases
+#### TC-INSPECT-API001: GET Forms List Endpoint: /master/forms Method: GET Headers:
+Authorization: Bearer {valid_token}
+Expected Response:
+{
+  "status": 200,
+  "data": [
+    {
+      "form_code": "INSP-001",
+      "form_name": "Daily Equipment Check",
+      "version": "1.0",
+      "fields": [
+        {
+          "field_id": "f1",
+          "field_type": "input_text",
+          "field_label": "Equipment ID",
+          "mandatory": true
+        },
+        {
+          "field_id": "f2",
+          "field_type": "date_picker",
+          "field_label": "Inspection Date",
+          "mandatory": true
+        }
+      ]
+    }
+  ]
+}
+Test Method: Automated API Testing Reason: Form structure critical for dynamic rendering
+
+#### TC-INSPECT-API002: POST Submit Inspection Endpoint: /equipment/inspection Method: POST Headers:
+Authorization: Bearer {valid_token}
+Content-Type: application/json
+Request:
+{
+  "form_code": "INSP-001",
+  "submission_data": {
+    "f1": "EQ-12345",
+    "f2": "2025-11-20",
+    "f3": "Good Condition",
+    "f4": "option1",
+    "f5": "base64_encoded_image"
+  },
+  "submitted_at": "2025-11-20T10:30:00Z",
+  "submitted_by": "user-001"
+}
+Expected Response:
+{
+  "status": 201,
+  "data": {
+    "submission_id": "sub-001",
+    "form_code": "INSP-001",
+    "status": "submitted",
+    "created_at": "2025-11-20T10:30:00Z"
+  }
+}
+Test Method: Automated API Testing Reason: Core functionality that must be stable
+
+#### TC-INSPECT-API003: POST Submit Inspection - Invalid Field Type Endpoint: /equipment/inspection Method: POST Request:
+{
+  "form_code": "INSP-001",
+  "submission_data": {
+    "f1": 12345,
+    "f2": "invalid-date"
+  }
+}
+Expected Response:
+{
+  "status": 400,
+  "error": {
+    "code": "VALIDATION_ERROR",
+    "message": "Invalid field data",
+    "details": [
+      {
+        "field": "f2",
+        "error": "Invalid date format"
+      }
+    ]
+  }
+}
+Test Method: Automated API Testing Reason: Data validation essential for data integrity
+
+#### TC-INSPECT-API004: POST Submit Inspection - Missing Mandatory Field Endpoint: /equipment/inspection Method: POST Request:
+{
+  "form_code": "INSP-001",
+  "submission_data": {
+    "f3": "Some optional data"
+  }
+}
+Expected Response:
+{
+  "status": 400,
+  "error": {
+    "code": "MANDATORY_FIELD_MISSING",
+    "message": "Required fields are missing",
+    "details": [
+      {"field": "f1", "label": "Equipment ID"},
+      {"field": "f2", "label": "Inspection Date"}
+    ]
+  }
+}
+Test Method: Automated API Testing Reason: Validation logic must be consistent
+
+#### TC-INSPECT-API005: GET Inspection History Endpoint: /equipment/inspection/history Method: GET Query Parameters:
+?user_id=user-001&limit=20&offset=0
+Expected Response:
+{
+  "status": 200,
+  "data": {
+    "total": 150,
+    "submissions": [
+      {
+        "submission_id": "sub-001",
+        "form_code": "INSP-001",
+        "form_name": "Daily Equipment Check",
+        "submitted_at": "2025-11-20T10:30:00Z",
+        "status": "completed"
+      }
+    ]
+  },
+  "pagination": {
+    "limit": 20,
+    "offset": 0,
+    "has_more": true
+  }
+}
+Test Method: Automated API Testing Reason: Pagination and data consistency testing
+
+#### TC-INSPECT-API006: Image Upload Endpoint Endpoint: /equipment/inspection/upload-image Method: POST Headers:
+Authorization: Bearer {valid_token}
+Content-Type: multipart/form-data
+Request:
+file: [binary image data]
+field_id: f5
+submission_id: sub-001 (optional for draft)
+Expected Response:
+{
+  "status": 200,
+  "data": {
+    "image_id": "img-001",
+    "image_url": "https://cdn.wemine.com/images/img-001.jpg",
+    "thumbnail_url": "https://cdn.wemine.com/images/thumb-img-001.jpg"
+  }
+}
+Test Method: Automated API Testing Reason: File upload handling validation
+
+#### TC-INSPECT-API007: Bulk Sync Offline Submissions Endpoint: /equipment/inspection/bulk-sync Method: POST Request:
+{
+  "submissions": [
+    {
+      "local_id": "local-001",
+      "form_code": "INSP-001",
+      "submission_data": {...},
+      "submitted_at": "2025-11-20T08:00:00Z"
+    },
+    {
+      "local_id": "local-002",
+      "form_code": "INSP-002",
+      "submission_data": {...},
+      "submitted_at": "2025-11-20T09:00:00Z"
+    }
+  ]
+}
+Expected Response:
+{
+  "status": 200,
+  "data": {
+    "success_count": 2,
+    "failed_count": 0,
+    "results": [
+      {
+        "local_id": "local-001",
+        "submission_id": "sub-101",
+        "status": "success"
+      },
+      {
+        "local_id": "local-002",
+        "submission_id": "sub-102",
+        "status": "success"
+      }
+    ]
+  }
+}
+Test Method: Automated API Testing Reason: Offline sync is critical feature for mining site with spotty connection
+
+#### TC-INSPECT-API008: Sync Status Endpoint Endpoint: /sync/status Method: GET Expected Response:
+{
+  "status": 200,
+  "data": {
+    "last_sync": "2025-11-20T10:00:00Z",
+    "pending_submissions": 5,
+    "failed_submissions": 0,
+    "sync_in_progress": false,
+    "last_sync_status": "success"
+  }
+}
+Test Method: Automated API Testing Reason: Sync state tracking
+
+#### TC-INSPECT-API009: Check Data Integrity Endpoint: /sync/validate Method: POST Request:
+{
+  "checksums": [
+    {
+      "local_id": "local-001",
+      "checksum": "abc123def456"
+    }
+  ]
+}
+Expected Response:
+{
+  "status": 200,
+  "data": {
+    "validated": [
+      {
+        "local_id": "local-001",
+        "server_id": "sub-001",
+        "match": true
+      }
+    ]
+  }
+}
+Test Method: Automated API Testing Reason: Data integrity verification
