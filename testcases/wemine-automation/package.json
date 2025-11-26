@@ -1,0 +1,23 @@
+{
+  "name": "wemine-automation",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "test": "npm run test:web && npm run test:api",
+    "test:web": "npx playwright test --project=web",
+    "test:api": "npx playwright test --project=api",
+    "test:mobile": "npx wdio run wdio.conf.js"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.48.0",
+    "typescript": "^5.6.0",
+    "ts-node": "^10.9.0",
+    "webdriverio": "^9.0.0",
+    "@wdio/appium-service": "^9.0.0",
+    "@wdio/mocha-framework": "^9.0.0",
+    "@wdio/spec-reporter": "^9.0.0",
+    "@wdio/allure-reporter": "^9.0.0",
+    "appium": "^2.0.0",
+    "allure-commandline": "^2.25.0"
+  }
+}
