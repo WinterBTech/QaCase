@@ -1,0 +1,338 @@
+# WeMine Test Cases by Muhammad Yusuf
+Test case including functional and API testing with test method manual/automation explanation
+
+## Flow 0 - Sign in
+### Functional Test Cases
+#### TC-SIGNIN-F001: Successful Login - Mobile Precondition: User has a valid account with configured tenant Test Steps:
+1. Open WeMine Mobile application
+2. Enter valid username
+3. Click "Next" or "Sign In" button
+4. System displays Microsoft login screen
+5. Enter valid Microsoft password
+6. System redirects to application
+7. Verify progress bar appears during master data download
+8. Verify restart prompt appears for first-time login
+Expected Result:
+* User successfully logged in
+* Master data downloaded completely
+* Restart prompt appears (for first-time login)
+Test Method: Manual Testing Reason: Requires visual verification for Microsoft SSO flow and user experience
+
+#### TC-SIGNIN-F002: Successful Login - Web Precondition: User has a valid account with configured tenant Test Steps:
+1. Open WeMineOffice in browser
+2. Enter valid username
+3. Click "Sign In" button
+4. System displays Microsoft login screen
+5. Enter valid Microsoft password
+6. System redirects to dashboard
+7. Verify master data loading indicator appears
+8. Verify dashboard displays data correctly
+Expected Result:
+* User successfully logged in to WeMineOffice
+* Dashboard is accessible
+* Master data is synchronized
+Test Method: Manual + Automated (Selenium/Playwright) Reason: Can be automated for regression testing, but needs manual for initial validation
+
+#### TC-SIGNIN-F003: Invalid Username Precondition: None Test Steps:
+1. Open application (Mobile/Web)
+2. Enter unregistered username
+3. Click "Next" or "Sign In" button
+Expected Result:
+* System displays clear error message
+* User cannot proceed to Microsoft login
+* Error message: "Username not found" or similar
+Test Method: Automated Testing Reason: Simple scenario that can be repeated for regression
+
+#### TC-SIGNIN-F004: Microsoft SSO Cancellation Precondition: User has valid account Test Steps:
+1. Enter valid username
+2. Microsoft login screen appears
+3. Click "Cancel" button or close browser/webview
+4. Verify user returns to login screen
+Expected Result:
+* Login is cancelled
+* User returns to username input page
+* No data is saved
+Test Method: Manual Testing Reason: Requires interaction with external SSO provider
+
+#### TC-SIGNIN-F005: Network Failure During Login Precondition: User has valid account Test Steps:
+1. Enter valid username
+2. Disable network connection
+3. Attempt to proceed with login
+4. Verify error handling
+Expected Result:
+* System displays informative error message
+* User can retry after connection is restored
+* No crash or frozen state occurs
+Test Method: Manual Testing Reason: Requires network condition simulation
+
+#### TC-SIGNIN-F006: Initial Master Data Download Precondition: Fresh install, user logged in for first time Test Steps:
+1. Complete login flow
+2. Monitor master data download progress
+3. Verify progress bar shows each endpoint
+4. Verify restart prompt appears
+5. Restart application
+6. Verify all features accessible
+Expected Result:
+* All master data endpoints called
+* Progress accurately shown
+* Download completes successfully
+* Restart prompt appears
+* App functions normally after restart
+Test Method: Manual Testing Reason: First-time user experience validation
+
+#### TC-SIGNIN-F007: Master Data Update Detection Precondition: User has existing master data, server has updates Test Steps:
+1. Server updates master data version
+2. User opens app
+3. Verify update detection
+4. Verify prompt to download updates
+5. Accept update
+6. Verify incremental sync
+Expected Result:
+* Update detected automatically
+* User informed of updates
+* Only changed data downloaded
+* Update process is smooth
+* No data loss
+Test Method: Manual Testing Reason: Update flow validation
+
+#### TC-SIGNIN-F008: Failed Master Data Download Recovery Precondition: Network unstable Test Steps:
+1. Start master data download
+2. Interrupt network during download
+3. Verify error handling
+4. Retry download
+5. Verify resume capability
+Expected Result:
+* Error shown clearly
+* Retry option available
+* Download resumes from interruption point
+* No partial/corrupted data
+* User can continue using app with old data
+Test Method: Manual Testing Reason: Error recovery validation
+
+#### TC-SIGNIN-F009: Cross-Platform Login Consistency Precondition: User has access to both Mobile and Web Test Steps:
+1. Login via Mobile with specific username
+2. Verify successful login and data sync
+3. Login via Web with same username
+4. Verify same tenant data loaded
+5. Verify permissions consistent across platforms
+Expected Result:
+* Login successful on both platforms
+* Same master data synchronized
+* Permissions enforced consistently
+* User experience consistent
+Test Method: Manual Testing Reason: Cross-platform validation
+
+### TC-SIGNIN-F010: Offline Mode After Initial Login Precondition: User has logged in and synced master data previously Test Steps:
+1. Disable network connection
+2. Open application
+3. Verify app opens with cached credentials
+4. Verify master data accessible
+5. Verify features work with cached data
+Expected Result:
+* App opens successfully offline
+* Master data accessible from cache
+* Features functional with cached data
+* Appropriate offline indicators shown
+Test Method: Manual Testing Reason: Offline capability validation
+
+### API Test Cases
+#### TC-SIGNIN-API001: GET /user/who - Valid Username Endpoint: /user/who Method: GET Request:
+{
+  "username": "john.doe"
+}
+Expected Response:
+{
+  "status": 200,
+  "data": {
+    "tenant_id": "tenant-001",
+    "tenant_name": "Mining Corp A",
+    "tenant_config": {...}
+  }
+}
+Test Method: Automated API Testing (Postman/Newman, REST Assured) Reason: Critical API endpoint that is frequently called, must be stable
+
+#### TC-SIGNIN-API002: GET /user/who - Invalid Username Endpoint: /user/who Method: GET Request:
+{
+  "username": "invalid.user"
+}
+Expected Response:
+{
+  "status": 404,
+  "error": {
+    "code": "USER_NOT_FOUND",
+    "message": "Username not found"
+  }
+}
+Test Method: Automated API Testing Reason: Testing error handling for invalid input
+
+#### TC-SIGNIN-API003: GET /user/me - Authorized Request Endpoint: /user/me Method: GET Headers:
+Authorization: Bearer {valid_token}
+Expected Response:
+{
+  "status": 200,
+  "data": {
+    "user_id": "user-001",
+    "username": "john.doe",
+    "full_name": "John Doe",
+    "role": "operator",
+    "permissions": [...]
+  }
+}
+Test Method: Automated API Testing Reason: Profile data crucial for application functionality
+
+#### TC-SIGNIN-API004: GET /user/me - Unauthorized Request Endpoint: /user/me Method: GET Headers:
+Authorization: Bearer {invalid_token}
+Expected Response:
+{
+  "status": 401,
+  "error": {
+    "code": "UNAUTHORIZED",
+    "message": "Token is invalid or has expired"
+  }
+}
+Test Method: Automated API Testing Reason: Security validation important to prevent unauthorized access
+
+#### TC-SIGNIN-API005: GET /tenant/master - Success Endpoint: /tenant/master Method: GET Headers:
+Authorization: Bearer {valid_token}
+Expected Response:
+{
+  "status": 200,
+  "data": {
+    "endpoints": [
+      "/master/locations",
+      "/master/sublocations",
+      "/master/areas",
+      "/master/employees",
+      "/master/forms"
+    ],
+    "version": "1.0.0"
+  }
+}
+Test Method: Automated API Testing Reason: Master data list essential for data synchronization
+
+#### TC-SIGNIN-API006: Master Data Download - All Endpoints Test Steps:
+1. Call GET /tenant/master
+2. Loop through all provided endpoints
+3. Verify each endpoint returns valid data
+4. Verify response time acceptable (< 5s per endpoint)
+Expected Result:
+* All endpoints accessible
+* Data format consistent
+* No timeout errors
+Test Method: Automated API Testing with performance monitoring Reason: Ensuring data integrity and performance for sync process
+
+#### TC-SIGNIN-API007: Rate Limiting Validation Test Steps:
+1. Send multiple login requests in short time window
+2. Verify rate limiting kicks in
+3. Verify appropriate error response
+Expected Result:
+{
+  "status": 429,
+  "error": {
+    "code": "TOO_MANY_REQUESTS",
+    "message": "Too many requests, please try again later",
+    "retry_after": 60
+  }
+}
+Test Method: Automated API Testing Reason: Preventing brute force attacks and ensuring system stability
+
+#### TC-SIGNIN-API008: GET Master Data Version Endpoint: /tenant/master/version Method: GET Expected Response:
+{
+  "status": 200,
+  "data": {
+    "version": "2.1.0",
+    "last_updated": "2025-11-20T00:00:00Z",
+    "endpoints": {
+      "locations": "1.5",
+      "employees": "2.0",
+      "forms": "1.8"
+    }
+  }
+}
+Test Method: Automated API Testing Reason: Version check for incremental sync
+
+#### TC-SIGNIN-API009: GET Locations Master Data Endpoint: /master/locations Method: GET Expected Response:
+{
+  "status": 200,
+  "data": {
+    "version": "1.5",
+    "locations": [
+      {
+        "location_id": "loc-001",
+        "location_code": "ZONE-A",
+        "location_name": "Zone A - North Pit",
+        "active": true
+      }
+    ]
+  }
+}
+Test Method: Automated API Testing Reason: Core master data retrieval
+
+#### TC-SIGNIN-API010: GET Employees Master Data Endpoint: /master/employees Method: GET Expected Response:
+{
+  "status": 200,
+  "data": {
+    "version": "2.0",
+    "employees": [
+      {
+        "user_id": "user-001",
+        "employee_code": "EMP001",
+        "full_name": "John Doe",
+        "role": "operator",
+        "department": "operations",
+        "active": true
+      }
+    ]
+  }
+}
+Test Method: Automated API Testing Reason: Employee data essential for PIC assignment
+
+#### TC-SIGNIN-API011: GET Forms Master Data Endpoint: /master/forms Method: GET Expected Response:
+{
+  "status": 200,
+  "data": {
+    "version": "1.8",
+    "forms": [
+      {
+        "form_code": "INSP-001",
+        "form_name": "Daily Equipment Check",
+        "version": "1.0",
+        "category": "inspection",
+        "active": true,
+        "fields": [...]
+      }
+    ]
+  }
+}
+Test Method: Automated API Testing Reason: Form definitions for dynamic form rendering
+
+#### TC-SIGNIN-API012: Incremental Sync Endpoint: /master/delta Method: POST Request:
+{
+  "current_versions": {
+    "locations": "1.4",
+    "employees": "1.9",
+    "forms": "1.8"
+  }
+}
+Expected Response:
+{
+  "status": 200,
+  "data": {
+    "updates_available": true,
+    "changes": {
+      "locations": {
+        "version": "1.5",
+        "added": [...],
+        "updated": [...],
+        "deleted": [...]
+      },
+      "employees": {
+        "version": "2.0",
+        "added": [...],
+        "updated": [...],
+        "deleted": [...]
+      }
+    }
+  }
+}
+Test Method: Automated API Testing Reason: Efficient sync mechanism validation
